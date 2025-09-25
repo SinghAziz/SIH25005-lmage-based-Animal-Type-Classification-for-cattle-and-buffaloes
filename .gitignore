@@ -1,0 +1,11 @@
+Backend/Model/dataset/
+Backend/Model/split
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environments
+venv/
+.env/
+env/
