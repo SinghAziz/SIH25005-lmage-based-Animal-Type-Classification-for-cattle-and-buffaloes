@@ -5,6 +5,7 @@ Backend/runs
 Backend/predictions
 Backend/all_test_results
 runs/
+Backend/Model/demo_dataset/
 # Python
 gpu_checker.py
 __pycache__/
