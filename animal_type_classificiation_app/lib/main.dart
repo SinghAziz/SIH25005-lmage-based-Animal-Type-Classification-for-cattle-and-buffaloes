@@ -1,6 +1,8 @@
-import 'package:animal_type_classificiation_app/core/home/home_page.dart';
+import 'package:animal_type_classificiation_app/features/history/history_page.dart';
+import 'package:animal_type_classificiation_app/features/home/home_content.dart';
+import 'package:animal_type_classificiation_app/features/settings/settings_page.dart';
 import 'package:flutter/material.dart';
-import 'core/splash/splash_screen.dart';
+import 'features/splash/splash_screen.dart';
 import 'config/app_theme.dart';
 import 'config/app_routes.dart';
 
@@ -21,7 +23,10 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(
           bodyLarge: AppTheme.defaultTextStyle(16),
           bodyMedium: AppTheme.defaultTextStyle(14),
-          headlineLarge: AppTheme.defaultTextStyle(28, fontWeight: FontWeight.bold),
+          headlineLarge: AppTheme.defaultTextStyle(
+            28,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: AppTheme.elevatedButtonStyle,
@@ -32,8 +37,9 @@ class MyApp extends StatelessWidget {
         AppRoutes.splash: (context) => const SplashScreen(),
         // Uncomment and add other screens later
         // AppRoutes.login: (context) => const LoginScreen(),
-        AppRoutes.home: (context) => const HomePage(),
-        // AppRoutes.cattle: (context) => const CattleScreen(),
+        AppRoutes.homepage: (context) => const HomeContent(),
+        AppRoutes.history: (context) => const HistoryPage(),
+        AppRoutes.settings: (context) => const SettingsPage(),
       },
     );
   }
