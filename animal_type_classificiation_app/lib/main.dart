@@ -1,5 +1,7 @@
+import 'package:animal_type_classificiation_app/core/home_page.dart';
 import 'package:animal_type_classificiation_app/features/history/history_page.dart';
 import 'package:animal_type_classificiation_app/features/home/home_content.dart';
+import 'package:animal_type_classificiation_app/features/prediction/predict_breed.dart';
 import 'package:animal_type_classificiation_app/features/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'features/splash/splash_screen.dart';
@@ -35,11 +37,18 @@ class MyApp extends StatelessWidget {
       initialRoute: AppRoutes.splash,
       routes: {
         AppRoutes.splash: (context) => const SplashScreen(),
-        // Uncomment and add other screens later
         // AppRoutes.login: (context) => const LoginScreen(),
-        AppRoutes.homepage: (context) => const HomeContent(),
+        AppRoutes.homepage: (context) => const HomePage(),
         AppRoutes.history: (context) => const HistoryPage(),
         AppRoutes.settings: (context) => const SettingsPage(),
+        AppRoutes.content: (context) => const HomeContent(),
+        AppRoutes.predict: (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map;
+          return PredictBreed(
+            aiResult: args['aiResult'],
+            imagePath: args['imagePath'],
+          );
+        },
       },
     );
   }

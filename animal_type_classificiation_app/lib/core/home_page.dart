@@ -14,9 +14,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    HomeContent(), // your current home content
-    HistoryPage(), // history page
-    SettingsPage(), // settings page
+    HomeContent(),
+    HistoryPage(), 
+    SettingsPage(), 
   ];
   @override
   Widget build(BuildContext context) {
