@@ -1,4 +1,4 @@
-// lib/features/splash/presentation/splash_screen.dart
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import '../../../config/app_theme.dart';
 import '../../../config/app_routes.dart';
@@ -11,16 +11,13 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // Available languages
   final Map<String, String> languages = {
     'en': 'English',
     'hi': 'Hindi',
     'pa': 'Punjabi',
   };
 
-  String selectedLang = 'en'; // default language
-
-  // Empty function for language change - can be implemented later
+  String selectedLang = 'en';
 
   @override
   Widget build(BuildContext context) {
@@ -31,17 +28,33 @@ class _SplashScreenState extends State<SplashScreen> {
           // mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App Name
-            Text(
-              "Cattle Lens",
-              style: TextStyle(color: AppTheme.textColor, fontSize: 60),
-              textAlign: TextAlign.center,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/buffalo.png',
+                  height: 80,
+                  width: 80,
+                  fit: BoxFit.cover,
+                ),
+                Text(
+                  "Cattle Lens",
+                  style: TextStyle(
+                    color: AppTheme.textColor,
+                    fontSize: 50,
+                    fontFamily: GoogleFonts.aBeeZee().fontFamily,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
+
             const SizedBox(height: 30),
 
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, AppRoutes.homepage);
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
               },
               child: const Text("Continue"),
             ),

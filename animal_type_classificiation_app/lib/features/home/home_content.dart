@@ -1,5 +1,6 @@
 import 'package:animal_type_classificiation_app/config/app_theme.dart';
-import 'package:animal_type_classificiation_app/core/predict.dart'; // ✅ your predict service
+import 'package:animal_type_classificiation_app/core/predict.dart';
+import 'package:animal_type_classificiation_app/features/prediction/predict_breed.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -17,7 +18,6 @@ class _HomeContentState extends State<HomeContent> {
   Map<String, dynamic>? prediction;
   bool isLoading = false;
 
-
   Future<void> pickImage(ImageSource source) async {
     try {
       final pickedFile = await picker.pickImage(source: source);
@@ -25,26 +25,14 @@ class _HomeContentState extends State<HomeContent> {
       if (pickedFile != null) {
         setState(() {
           image = File(pickedFile.path);
-          prediction = null;
-          isLoading = true;
+          prediction = null; // Reset prediction for new image
         });
-
-
-        final result = await predictImage(image!);
-
-        setState(() {
-          isLoading = false;
-          prediction = result;
-        });
-      } else {
-        print("no image selected");
       }
     } catch (e) {
-      print("Error: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     }
   }
@@ -57,14 +45,27 @@ class _HomeContentState extends State<HomeContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              "Welcome Back Chief!",
-              style: AppTheme.defaultTextStyle(24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
+            // SizedBox(height: 50),
+            Row(
+              children: [
+                Image.asset(
+                  'assets/images/buffalo.png',
+                  height: 80,
+                  width: 80,
+                  fit: BoxFit.cover,
+                ),
+                Text(
+                  "Welcome Back Chief!",
+                  style: AppTheme.defaultTextStyle(
+                    24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
             const SizedBox(height: 30),
 
-            // 🖼 Display selected image or placeholder
             Container(
               height: 250,
               width: double.infinity,
@@ -79,36 +80,6 @@ class _HomeContentState extends State<HomeContent> {
                     )
                   : const Center(child: Text("No image selected")),
             ),
-
-            const SizedBox(height: 20),
-
-            if (isLoading) const CircularProgressIndicator(),
-
-            if (!isLoading && prediction != null) ...[
-              const SizedBox(height: 20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[700],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Animal: ${prediction!['animal'] ?? 'Unknown'}",
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      "Breed: ${prediction!['breed'] ?? 'Unknown'}",
-                      style: const TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ],
 
             const SizedBox(height: 20),
 
@@ -135,6 +106,78 @@ class _HomeContentState extends State<HomeContent> {
               ],
             ),
             const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: image != null && !isLoading && prediction == null
+                  ? () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+
+                      try {
+                        final result = await predictImage(image!);
+
+                        setState(() {
+                          isLoading = false;
+                          prediction = result;
+                        });
+
+                        // Auto-navigate to results page
+                        if (mounted && result != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PredictBreed(
+                                aiResult: result,
+                                imagePath: image!.path,
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        setState(() {
+                          isLoading = false;
+                        });
+                        if (mounted) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                        }
+                      }
+                    }
+                  : null,
+              style: image != null
+                  ? AppTheme.elevatedButtonStyle.copyWith(
+                      backgroundColor: const WidgetStatePropertyAll<Color>(
+                        Colors.green,
+                      ),
+                    )
+                  : AppTheme.elevatedButtonStyle.copyWith(
+                      backgroundColor: WidgetStatePropertyAll(Colors.grey),
+                    ),
+              child: isLoading
+                  ? const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          "Processing...",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    )
+                  : const Text(
+                      "Analyze Image",
+                      style: TextStyle(color: Colors.white),
+                    ),
+            ),
           ],
         ),
       ),
