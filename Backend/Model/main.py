@@ -47,13 +47,24 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 num_classes = 41  # Must match your checkpoint
-model_path = os.path.join(BASE_DIR, "Model", "best_model.pth")
+# Updated model path to use the correct location
+model_path = os.path.join(BASE_DIR, "best_model.pth")
 
-model = models.resnet18(weights=None)
-model.fc = nn.Linear(model.fc.in_features, num_classes)
-model.load_state_dict(torch.load(model_path, map_location=device))
-model.to(device)
-model.eval()
+def load_model(model_path, num_classes):
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at: {model_path}")
+    
+    model = models.resnet18(weights=None)
+    model.fc = nn.Linear(model.fc.in_features, num_classes)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.to(device)
+    model.eval()
+    return model
+
+# Load the model
+print(f"Loading model from: {model_path}")
+model = load_model(model_path, len(class_names))
+print("Model loaded successfully!")
 
 #--Image transforms--#
 transform = transforms.Compose([
@@ -64,7 +75,6 @@ transform = transforms.Compose([
 ])
 
 #-- Prediction function --#
-
 def predict_image(model, image_bytes):
     image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
     img_tensor = transform(image).unsqueeze(0).to(device)
@@ -75,39 +85,21 @@ def predict_image(model, image_bytes):
     animal = animal_map.get(breed, "Unknown")
     return {"animal": animal, "breed": breed}
 
-
 #--FastAPI APP--#
-
-app = FastAPI()
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(BASE_DIR, "Model", "best_model.pth")
-
-def load_model(model_path, num_classes):
-    model = models.resnet18(weights=None)
-    model.fc = nn.Linear(model.fc.in_features, num_classes)
-    model.load_state_dict(torch.load(model_path, map_location=device))
-    model.to(device)
-    model.eval()
-    return model
-
-model = load_model(model_path, len(class_names))
-
 @app.get("/")
 def root():
-         return {"message": "Welcome to the Cattle and Buffalo Breed Prediction API!"}
+    return {"message": "Welcome to the Cattle and Buffalo Breed Prediction API!"}
 
+@app.post("/predict/")
+async def predict(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        result = predict_image(model, contents)
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8080))  # For Render
-    uvicorn.run("Backend.main:app", host="0.0.0.0", port=port)
-
-@app.post("/predict/")
-async def predict(file: UploadFile = File(...)):
-     contents = await file.read()
-     result = predict_image(model, contents)
-     return JSONResponse(content=result)
-
-
-
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
