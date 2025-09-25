@@ -54,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, AppRoutes.homepage);
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
               },
               child: const Text("Continue"),
             ),
