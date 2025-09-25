@@ -1,6 +1,12 @@
 Backend/Model/dataset/
 Backend/Model/split
+Backend/dataset
+Backend/runs
+Backend/predictions
+Backend/all_test_results
+runs/
 # Python
+gpu_checker.py
 __pycache__/
 *.pyc
 *.pyo
