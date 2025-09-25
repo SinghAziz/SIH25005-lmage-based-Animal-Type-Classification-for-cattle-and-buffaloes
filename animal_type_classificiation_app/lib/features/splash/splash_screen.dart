@@ -39,13 +39,9 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 30),
 
-            const SizedBox(height: 40),
-
-            // Continue Button
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, AppRoutes.home);
-                print("Hello Jaideep");
+                Navigator.pushReplacementNamed(context, AppRoutes.homepage);
               },
               child: const Text("Continue"),
             ),
