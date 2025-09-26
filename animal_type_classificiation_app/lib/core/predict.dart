@@ -1,27 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
+  import 'dart:convert';
+  import 'dart:io';
+  import 'package:http/http.dart' as http;
 
-Future<Map<String, dynamic>?> predictImage(File imageFile) async {
-  try {
-    String baseUrl;
-
-    if (Platform.isIOS) {
-      baseUrl = 'http://localhost:8000';
-    } else if (Platform.isAndroid) {
-      bool isEmulator = true; // Set to false when testing on real device
-
-      if (isEmulator) {
-        baseUrl = 'http://10.0.2.2:8000'; // Android Emulator
-      } else {
-        baseUrl = 'http://192.168.1.100:8000'; // Physical Device (replace IP)
-      }
-    } else {
-      baseUrl = 'http://localhost:8000'; // Desktop/Other
-    }
-
-    var uri = Uri.parse('$baseUrl/predict/');
-
+  Future<Map<String, dynamic>?> predictImage(File imageFile) async {
+    var uri = Uri.parse(
+      'https://lmage-based-animal-type-classification.onrender.com/predict/',
+    );
     var request = http.MultipartRequest('POST', uri)
       ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
 
@@ -33,10 +17,5 @@ Future<Map<String, dynamic>?> predictImage(File imageFile) async {
           ? Map<String, dynamic>.from(jsonDecode(responseString))
           : null;
     }
-
-    return null;
-  } catch (e) {
-    print("❌ Error: $e");
     return null;
   }
-}
