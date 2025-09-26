@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import JSONResponse
 import torch
+
 import torch.nn as nn
 from torchvision import models, transforms
 import torch.nn as nn
@@ -11,6 +12,7 @@ import io, os
 app = FastAPI()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 #-- CLASS NAMES --#
 class_names = [
