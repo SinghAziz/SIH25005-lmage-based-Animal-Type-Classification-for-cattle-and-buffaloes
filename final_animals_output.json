@@ -1,0 +1,74 @@
+[
+  {
+    "animal_id": null,
+    "image": "00000002.jpg",
+    "breed": "Deoni",
+    "height_cm": 125,
+    "width_cm": 55,
+    "weight_kg": 233.43,
+    "milk_yield_L_day": 191.88
+  },
+  {
+    "animal_id": null,
+    "image": "00000003.jpg",
+    "breed": "Dangi",
+    "height_cm": 110,
+    "width_cm": 50,
+    "weight_kg": 216.18,
+    "milk_yield_L_day": 181.33
+  },
+  {
+    "animal_id": null,
+    "image": "00000001.png",
+    "breed": "Toda",
+    "height_cm": 90,
+    "width_cm": 45,
+    "weight_kg": 84.55,
+    "milk_yield_L_day": 71.15
+  },
+  {
+    "animal_id": null,
+    "image": "Amritmahal_1.JPG",
+    "breed": "Malnad_gidda",
+    "height_cm": 95,
+    "width_cm": 45,
+    "weight_kg": 72.38,
+    "milk_yield_L_day": 59.14
+  },
+  {
+    "animal_id": null,
+    "image": "Amritmahal_3.png",
+    "breed": "Dangi",
+    "height_cm": 110,
+    "width_cm": 50,
+    "weight_kg": 216.18,
+    "milk_yield_L_day": 181.33
+  },
+  {
+    "animal_id": null,
+    "image": "Amritmahal_2.JPG",
+    "breed": "Krishna_Valley",
+    "height_cm": 120,
+    "width_cm": 55,
+    "weight_kg": 219.29,
+    "milk_yield_L_day": 183.69
+  },
+  {
+    "animal_id": null,
+    "image": "Amritmahal_5.jpg",
+    "breed": "Malnad_gidda",
+    "height_cm": 95,
+    "width_cm": 45,
+    "weight_kg": 72.38,
+    "milk_yield_L_day": 59.14
+  },
+  {
+    "animal_id": null,
+    "image": "Amritmahal_4.jpg",
+    "breed": "Malnad_gidda",
+    "height_cm": 95,
+    "width_cm": 45,
+    "weight_kg": 72.38,
+    "milk_yield_L_day": 59.14
+  }
+]
