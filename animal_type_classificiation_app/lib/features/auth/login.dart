@@ -151,7 +151,6 @@ class _LoginPageState extends State<LoginPage> {
               // Forgot Password
               TextButton(
                 onPressed: () {
-                  // TODO: Implement forgot password (optional for phone)
                 },
                 child: Text(
                   "Forgot Password?",
