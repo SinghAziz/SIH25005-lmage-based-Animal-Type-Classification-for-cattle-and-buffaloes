@@ -1,3 +1,0 @@
-# The breed_encoder.pkl file is a binary file that contains the trained encoder for breed one-hot encoding. 
-# It is not meant to be manually created or edited as it is generated during the training process. 
-# Therefore, this file is intentionally left blank.

@@ -154,6 +154,10 @@ async def predict_animal(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)
 
+
+@app.get('/')
+def root():
+    return "Welcome"
 # ---------------- RUN ----------------
 if __name__ == "__main__":
     import uvicorn
