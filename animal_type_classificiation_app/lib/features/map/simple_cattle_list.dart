@@ -107,17 +107,17 @@ class _SimpleCattleListPageState extends State<SimpleCattleListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.primaryColor,
-      appBar: AppBar(
-        title: Text(
-          'Cattle Locations',
-          style: AppTheme.defaultTextStyle(
-            20,
-            fontWeight: FontWeight.bold,
-          ).copyWith(color: AppTheme.primaryColor),
-        ),
-        backgroundColor: AppTheme.textColor,
-        iconTheme: const IconThemeData(color: AppTheme.primaryColor),
-      ),
+      // appBar: AppBar(
+      //   title: Text(
+      //     'Cattle Locations',
+      //     style: AppTheme.defaultTextStyle(
+      //       20,
+      //       fontWeight: FontWeight.bold,
+      //     ).copyWith(color: AppTheme.primaryColor),
+      //   ),
+      //   backgroundColor: AppTheme.textColor,
+      //   iconTheme: const IconThemeData(color: AppTheme.primaryColor),
+      // ),
       body: _isLoading
           ? Center(
               child: Column(

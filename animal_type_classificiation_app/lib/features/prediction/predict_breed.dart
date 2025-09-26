@@ -134,13 +134,11 @@ class _PredictBreedState extends State<PredictBreed> {
 
       final docRef = FirebaseFirestore.instance.collection('cattle').doc(tag);
 
-      await docRef.set({
-        'animal': widget.aiResult['animal'] ?? 'Unknown',
-        'breed': widget.aiResult['breed'] ?? 'Unknown',
-        'atc_score': widget.aiResult['atc_score'],
-        'milk_qty': widget.aiResult['milk_qty'],
-        'height': widget.aiResult['height'],
-        'weight': widget.aiResult['weight'],
+      // Create a map with all AI result data plus additional fields
+      Map<String, dynamic> dataToSave = Map.from(widget.aiResult);
+
+      // Add our custom fields
+      dataToSave.addAll({
         'tag': tag,
         'location': _currentPosition != null
             ? {
@@ -150,6 +148,8 @@ class _PredictBreedState extends State<PredictBreed> {
             : null,
         'timestamp': FieldValue.serverTimestamp(),
       });
+
+      await docRef.set(dataToSave);
 
       ScaffoldMessenger.of(
         context,
@@ -162,22 +162,109 @@ class _PredictBreedState extends State<PredictBreed> {
   }
 
   /// Helper for static fields
-  Widget _buildField(String label, dynamic value) {
-    return Row(
-      children: [
-        Icon(Icons.label, color: AppTheme.primaryColor),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            "$label: ${value ?? 'Unknown'}",
-            style: AppTheme.defaultTextStyle(
-              18,
-              fontWeight: FontWeight.w600,
-            ).copyWith(color: AppTheme.primaryColor),
+  Widget _buildField(String label, dynamic value, {IconData? icon}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(
+            icon ?? _getIconForField(label.toLowerCase()),
+            color: AppTheme.primaryColor,
+            size: 20,
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTheme.defaultTextStyle(
+                    14,
+                    fontWeight: FontWeight.w500,
+                  ).copyWith(color: AppTheme.primaryColor.withOpacity(0.8)),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  "${_formatValue(value)}",
+                  style: AppTheme.defaultTextStyle(
+                    16,
+                    fontWeight: FontWeight.w600,
+                  ).copyWith(color: AppTheme.primaryColor),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  /// Get appropriate icon for field
+  IconData _getIconForField(String fieldName) {
+    switch (fieldName.toLowerCase()) {
+      case 'animal':
+        return Icons.pets;
+      case 'breed':
+        return Icons.category;
+      case 'atc_score':
+      case 'atc score':
+        return Icons.score;
+      case 'milk_qty':
+      case 'milk quantity':
+      case 'milk':
+        return Icons.water_drop;
+      case 'height':
+        return Icons.height;
+      case 'weight':
+        return Icons.monitor_weight;
+      case 'age':
+        return Icons.calendar_today;
+      case 'health_status':
+      case 'health status':
+      case 'health':
+        return Icons.health_and_safety;
+      case 'body_condition_score':
+      case 'body condition':
+        return Icons.fitness_center;
+      case 'prediction_confidence':
+      case 'confidence':
+        return Icons.verified;
+      default:
+        return Icons.info;
+    }
+  }
+
+  /// Format value for display
+  String _formatValue(dynamic value) {
+    if (value == null) return 'Unknown';
+    if (value is double) {
+      return value.toStringAsFixed(2);
+    }
+    if (value is num) {
+      return value.toString();
+    }
+    return value.toString();
+  }
+
+  /// Format field label for better display
+  String _formatFieldLabel(String key) {
+    // Convert snake_case and camelCase to Title Case
+    String formatted = key
+        .replaceAllMapped(RegExp(r'[_-]'), (match) => ' ')
+        .replaceAllMapped(
+          RegExp(r'([a-z])([A-Z])'),
+          (match) => '${match.group(1)} ${match.group(2)}',
+        );
+
+    // Capitalize first letter of each word
+    return formatted
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 
   @override
@@ -240,24 +327,29 @@ class _PredictBreedState extends State<PredictBreed> {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          _buildField("Animal", widget.aiResult['animal']),
-                          const Divider(),
-                          _buildField("Breed", widget.aiResult['breed']),
-                          const Divider(),
-                          _buildField(
-                            "ATC Score",
-                            widget.aiResult['atc_score'],
-                          ),
-                          const Divider(),
-                          _buildField(
-                            "Milk Quantity",
-                            widget.aiResult['milk_qty'],
-                          ),
-                          const Divider(),
-                          _buildField("Height", widget.aiResult['height']),
-                          const Divider(),
-                          _buildField("Weight", widget.aiResult['weight']),
-                          const Divider(),
+                          // Display all prediction fields dynamically
+                          ...widget.aiResult.entries.map((entry) {
+                            String key = entry.key;
+                            dynamic value = entry.value;
+
+                            // Format the field label for better display
+                            String label = _formatFieldLabel(key);
+
+                            return Column(
+                              children: [
+                                _buildField(label, value),
+                                if (widget.aiResult.entries.last.key != key)
+                                  Divider(
+                                    color: AppTheme.primaryColor.withOpacity(
+                                      0.3,
+                                    ),
+                                    thickness: 0.5,
+                                  ),
+                              ],
+                            );
+                          }).toList(),
+
+                          const SizedBox(height: 16),
 
                           // Tag input
                           Row(
