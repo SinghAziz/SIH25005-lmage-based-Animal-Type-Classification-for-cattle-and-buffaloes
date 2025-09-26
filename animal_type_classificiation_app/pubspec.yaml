@@ -16,6 +16,8 @@ dependencies:
   firebase_auth: ^6.1.0
   flutter_tts: ^4.2.3
   speech_to_text: ^7.3.0
+  google_generative_ai: ^0.4.7
+
 
 dev_dependencies:
   flutter_test:
