@@ -7,5 +7,5 @@ class AppRoutes {
   static const String content = '/content';
   static const String predict = 'predict';
   static const String signup = '/signup';
-
+  static const String cattleMap = '/cattle-map';
 }

@@ -3,6 +3,7 @@ import 'package:animal_type_classificiation_app/features/auth/login.dart';
 import 'package:animal_type_classificiation_app/features/auth/signup.dart';
 import 'package:animal_type_classificiation_app/features/history/history_page.dart';
 import 'package:animal_type_classificiation_app/features/home/home_content.dart';
+import 'package:animal_type_classificiation_app/features/map/cattle_map_page.dart';
 import 'package:animal_type_classificiation_app/features/prediction/predict_breed.dart';
 import 'package:animal_type_classificiation_app/features/settings/settings_page.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.settings: (context) => const SettingsPage(),
         AppRoutes.content: (context) => const HomeContent(),
         AppRoutes.signup: (context) => const SignupPage(),
+        AppRoutes.cattleMap: (context) => const CattleMapPage(),
         AppRoutes.predict: (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map;
           return PredictBreed(

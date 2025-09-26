@@ -1,6 +1,7 @@
 import 'package:animal_type_classificiation_app/config/app_theme.dart';
 import 'package:animal_type_classificiation_app/features/history/history_page.dart';
 import 'package:animal_type_classificiation_app/features/home/home_content.dart';
+import 'package:animal_type_classificiation_app/features/map/simple_cattle_list.dart';
 import 'package:animal_type_classificiation_app/features/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 
@@ -15,46 +16,47 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _pages = [
     HomeContent(),
-    HistoryPage(), 
-    SettingsPage(), 
+    HistoryPage(),
+    SimpleCattleListPage(),
+    SettingsPage(),
   ];
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            "Cattle Lens",
-            style: AppTheme.defaultTextStyle(
-              20,
-              fontWeight: FontWeight.bold,
-            ).copyWith(color: AppTheme.primaryColor),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Cattle Lens",
+          style: AppTheme.defaultTextStyle(
+            20,
+            fontWeight: FontWeight.bold,
+          ).copyWith(color: AppTheme.primaryColor),
+        ),
+        backgroundColor: AppTheme.textColor,
+      ),
+      body: _pages[_currentIndex],
+
+      // Bottom Navigation Bar
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: AppTheme.primaryColor,
+        unselectedItemColor: AppTheme.secondaryColor,
+        backgroundColor: AppTheme.textColor,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
+          BottomNavigationBarItem(icon: Icon(Icons.map), label: "Map"),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: "Settings",
           ),
-          backgroundColor: AppTheme.textColor,
-        ),
-        body: _pages[_currentIndex],
-      
-        // Bottom Navigation Bar
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: AppTheme.primaryColor,
-          unselectedItemColor: AppTheme.secondaryColor,
-          backgroundColor: AppTheme.textColor,
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-      
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: "Settings",
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

@@ -89,10 +89,13 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: AppTheme.primaryColor,
       appBar: AppBar(
-        backgroundColor: AppTheme.secondaryColor,
+        backgroundColor: AppTheme.accentColor,
         title: Text(
           "Login",
-          style: AppTheme.defaultTextStyle(20, fontWeight: FontWeight.w600),
+          style: AppTheme.defaultTextStyle(
+            20,
+            fontWeight: FontWeight.w600,
+          ).copyWith(color: Colors.white),
         ),
         centerTitle: true,
       ),
@@ -108,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                 keyboardType: TextInputType.phone,
                 style: AppTheme.defaultTextStyle(16),
                 decoration: InputDecoration(
-                  labelText: "Phone Number (+91xxxx)",
+                  labelText: "Phone Number (+91)",
                   labelStyle: AppTheme.defaultTextStyle(14),
                   filled: true,
                   fillColor: Colors.white,
@@ -124,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: otpController,
                   keyboardType: TextInputType.number,
+                  obscureText: true, // Makes the input encrypted
                   style: AppTheme.defaultTextStyle(16),
                   decoration: InputDecoration(
                     labelText: "OTP",
@@ -138,20 +142,11 @@ class _LoginPageState extends State<LoginPage> {
               if (_otpSent) const SizedBox(height: 24),
 
               // Send OTP / Verify OTP Button
-              _isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _otpSent ? _verifyOtp : _sendOtp,
-                      style: AppTheme.elevatedButtonStyle,
-                      child: Text(_otpSent ? "Verify OTP" : "Send OTP"),
-                    ),
-
               const SizedBox(height: 20),
 
               // Forgot Password
               TextButton(
-                onPressed: () {
-                },
+                onPressed: () {},
                 child: Text(
                   "Forgot Password?",
                   style: AppTheme.defaultTextStyle(

@@ -3,10 +3,12 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  cloud_firestore
   file_selector_windows
   firebase_auth
   firebase_core
   flutter_tts
+  geolocator_windows
   speech_to_text_windows
 )
 

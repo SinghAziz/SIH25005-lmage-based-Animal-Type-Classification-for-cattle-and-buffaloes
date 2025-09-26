@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFFFFF8E1); 
-  static const Color secondaryColor = Color(0xFF8D6E63); 
-  static const Color accentColor = Color(0xFF5D4037); 
-  static const Color textColor = Color(0xFF3E2723); 
+  static const Color primaryColor = Color(0xFFFFF8E1);
+  static const Color secondaryColor = Color(0xFF8D6E63);
+  static const Color accentColor = Color(0xFF5D4037);
+  static const Color textColor = Color(0xFF3E2723);
 
   static TextStyle defaultTextStyle(
     double fontSize, {
