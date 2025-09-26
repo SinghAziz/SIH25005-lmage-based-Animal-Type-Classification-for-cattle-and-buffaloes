@@ -1,19 +1,16 @@
-# main.py
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-from PIL import Image
+import os, json, re
+import numpy as np
 import torch
 import torch.nn as nn
-import joblib
-import numpy as np
 from torchvision import models, transforms
-from collections import OrderedDict
+from PIL import Image
+import joblib
 
-app = FastAPI(title="Cattle/Buffalo Animal Type Prediction API")
-
-# ---------------- CONFIG ----------------
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+IMG_FOLDER = "Backend/Model/demo_dataset"
+YOLO_JSON  = "Backend/Processed_json/metrics.json"   # contains bbox_width/height + image name
 BREED_MODEL = "best_model.pth"
 WEIGHT_MODEL = "weight_predictor_model.pth"
 MILK_MODEL   = "milk_yield_model.pth"
@@ -22,8 +19,9 @@ SCALER_X = "scaler_X.pkl"
 SCALER_Y = "scaler_y.pkl"
 ENCODER_MILK = "milk_breed_encoder.pkl"
 
+# Breed measurements
 BREED_MEASUREMENTS = {
-   "Vechur": {"height_cm": 90, "width_cm": 50}, "Mehsana": {"height_cm": 129, "width_cm": 60},
+    "Vechur": {"height_cm": 90, "width_cm": 50}, "Mehsana": {"height_cm": 129, "width_cm": 60},
     "Hallikar": {"height_cm": 130, "width_cm": 60}, "Amritmahal": {"height_cm": 130, "width_cm": 60},
     "Kankrej": {"height_cm": 140, "width_cm": 65}, "Sahiwal": {"height_cm": 130, "width_cm": 60},
     "Surti": {"height_cm": 125, "width_cm": 55}, "Jersey": {"height_cm": 120, "width_cm": 55},
@@ -46,7 +44,7 @@ BREED_MEASUREMENTS = {
     "Nili_Ravi": {"height_cm": 140, "width_cm": 70},
 }
 
-# ---------------- MODEL DEFINITIONS ----------------
+# ----------------- MODEL DEFINITIONS -----------------
 class WeightPredictor(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
@@ -67,7 +65,7 @@ class MilkYieldPredictor(nn.Module):
         )
     def forward(self, x): return self.net(x)
 
-# ---------------- HELPERS ----------------
+# ----------------- HELPERS -----------------
 def load_breed_classifier():
     breed_list = list(BREED_MEASUREMENTS.keys())
     model = models.resnet18(weights=None)
@@ -81,13 +79,7 @@ def predict_weight(height, width, breed_name):
     scX = joblib.load(SCALER_X)
     scY = joblib.load(SCALER_Y)
     model = WeightPredictor(2 + len(enc.categories_[0]))
-
-    # Load fixed state_dict
-    state = torch.load(WEIGHT_MODEL, map_location=device)
-    new_state = OrderedDict()
-    for k, v in state.items():
-        new_state[k.replace("model", "net")] = v
-    model.load_state_dict(new_state)
+    model.load_state_dict(torch.load(WEIGHT_MODEL, map_location=device))
     model.to(device).eval()
 
     breed_vec = np.zeros(len(enc.categories_[0]))
@@ -102,59 +94,76 @@ def predict_weight(height, width, breed_name):
 def predict_milk_yield(breed_name, weight):
     enc = joblib.load(ENCODER_MILK)
     model = MilkYieldPredictor(len(enc.categories_[0]) + 1)
-
-    state = torch.load(MILK_MODEL, map_location=device)
-    new_state = OrderedDict()
-    for k, v in state.items():
-        new_state[k.replace("model", "net")] = v
-    model.load_state_dict(new_state)
+    model.load_state_dict(torch.load(MILK_MODEL, map_location=device))
     model.to(device).eval()
 
     breed_vec = np.zeros(len(enc.categories_[0]))
     breed_vec[list(enc.categories_[0]).index(breed_name)] = 1
     feat = np.concatenate((breed_vec, [weight]))
     feat = torch.tensor(feat, dtype=torch.float32).unsqueeze(0).to(device)
-
     with torch.no_grad():
         return model(feat).item()
+    
 
-# ---------------- PREDICTION ENDPOINT ----------------
-@app.post("/predict")
-async def predict_animal(file: UploadFile = File(...)):
-    try:
-        # Open uploaded image
-        img = Image.open(file.file).convert("RGB")
-        tfm = transforms.Compose([transforms.Resize((224,224)), transforms.ToTensor()])
+
+def run_pipeline():
+    # Load YOLO json
+    with open(YOLO_JSON) as f:
+        data = json.load(f)
+
+    breed_model, breed_list = load_breed_classifier()
+    tfm = transforms.Compose([transforms.Resize((224,224)), transforms.ToTensor()])
+
+    results = []
+    for item in data:
+        img_path = os.path.join(IMG_FOLDER, item["image"])
+        if not os.path.exists(img_path):
+            continue
+
+        # breed prediction
+        img = Image.open(img_path).convert("RGB")
         inp = tfm(img).unsqueeze(0).to(device)
-
-        # Breed prediction
-        breed_model, breed_list = load_breed_classifier()
         with torch.no_grad():
             out = breed_model(inp)
             _, idx = torch.max(out, 1)
         breed = breed_list[idx.item()]
 
-        # Use generic breed dimensions
-        height_cm = BREED_MEASUREMENTS[breed]["height_cm"]
-        width_cm  = BREED_MEASUREMENTS[breed]["width_cm"]
+        # convert bbox px to cm using generic breed dims
+        generic_h = BREED_MEASUREMENTS[breed]["height_cm"]
+        generic_w = BREED_MEASUREMENTS[breed]["width_cm"]
+        px_w = item.get("bbox_width")
+        px_h = item.get("bbox_height")
+        if px_w and px_h:
+            height_cm = round(px_h * (generic_h / px_h), 2)
+            width_cm  = round(px_w * (generic_w / px_w), 2)
+        else:
+            height_cm, width_cm = generic_h, generic_w
 
-        # Weight and milk prediction
+        # weight + milk
         weight_kg = predict_weight(height_cm, width_cm, breed)
-        milk_l    = predict_milk_yield(breed, weight_kg)
+        milk_l = predict_milk_yield(breed, weight_kg)
 
-        return JSONResponse({
-            "Animal": "Cow/Buffalo",  # You can refine later if you have separate detection
-            "Breed": str(breed),
-            "Height_cm": float(round(height_cm, 2)),
-            "Width_cm": float(round(width_cm, 2)),
-            "Weight_kg": float(round(weight_kg, 2)),
-            "Milk_Yield_L_day": float(round(milk_l, 2))
+        results.append({
+            "animal_id": item.get("id", None),
+            "image": item["image"],
+            "breed": breed,
+            "height_cm": height_cm,
+            "width_cm": width_cm,
+            "weight_kg": round(weight_kg, 2),
+            "milk_yield_L_day": round(milk_l, 2)
         })
 
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=400)
+    with open("final_animals_output.json", "w") as f:
+        json.dump(results, f, indent=2)
 
-# ---------------- RUN ----------------
+    return results
+
+# Example direct call:
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    final = run_pipeline()
+    print(f"✅ Pipeline finished. {len(final)} animals processed.")
+
+
+
+
+

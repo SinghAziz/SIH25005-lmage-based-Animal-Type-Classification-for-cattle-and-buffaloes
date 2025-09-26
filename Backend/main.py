@@ -27,8 +27,8 @@ app.add_middleware(
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-# Base directory
-BASE_DIR = Path(__file__).parent
+# Base directory - point to project root where model files are located
+BASE_DIR = Path(__file__).parent.parent
 
 # Class names (breed classification)
 class_names = [
@@ -157,9 +157,10 @@ def load_models():
     try:
         # Load YOLO model for detection
         yolo_candidates = [
+            BASE_DIR / "Backend" / "best.pt",
             BASE_DIR / "best.pt",
             BASE_DIR / "runs" / "detect" / "train" / "weights" / "best.pt",
-            BASE_DIR / "Model" / "best.pt"
+            BASE_DIR / "Backend" / "Model" / "best.pt"
         ]
         
         for yolo_path in yolo_candidates:
@@ -267,7 +268,7 @@ def predict_weight_from_models(height, width, breed_name):
             pred_scaled = weight_model(features).cpu().numpy()
         pred_weight = weight_scaler_y.inverse_transform(pred_scaled.reshape(1, -1))[0][0]
         
-        return pred_weight
+        return float(pred_weight)
     
     except Exception as e:
         print(f"Weight prediction error: {e}")
@@ -292,7 +293,7 @@ def predict_milk_from_models(breed_name, weight):
 
         # Predict
         with torch.no_grad():
-            return milk_model(features).item()
+            return float(milk_model(features).item())
             
     except Exception as e:
         print(f"Milk prediction error: {e}")
@@ -566,17 +567,17 @@ class CattleAnalysisPipeline:
             
             # Create summary
             results["summary"] = {
-                "animal_type": animal_type,
-                "breed": breed,
-                "height_cm": height_cm,
-                "width_cm": width_cm,
-                "weight_kg": weight_result.get("weight_kg", 0),
-                "daily_milk_liters": milk_result.get("avg_milk_per_day_liters", 0),
-                "yearly_milk_liters": milk_result.get("estimated_yearly_yield_liters", 0),
-                "detection_confidence": detection_result.get("confidence", 0),
-                "breed_confidence": breed_result.get("confidence", 0),
-                "weight_method": weight_result.get("method", "unknown"),
-                "milk_method": milk_result.get("method", "unknown")
+                "animal_type": str(animal_type),
+                "breed": str(breed),
+                "height_cm": float(height_cm) if height_cm is not None else 0.0,
+                "width_cm": float(width_cm) if width_cm is not None else 0.0,
+                "weight_kg": float(weight_result.get("weight_kg", 0)),
+                "daily_milk_liters": float(milk_result.get("avg_milk_per_day_liters", 0)),
+                "yearly_milk_liters": float(milk_result.get("estimated_yearly_yield_liters", 0)),
+                "detection_confidence": float(detection_result.get("confidence", 0)),
+                "breed_confidence": float(breed_result.get("confidence", 0)),
+                "weight_method": str(weight_result.get("method", "unknown")),
+                "milk_method": str(milk_result.get("method", "unknown"))
             }
             
             results["status"] = "success"
