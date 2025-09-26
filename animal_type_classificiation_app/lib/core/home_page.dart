@@ -1,6 +1,7 @@
 import 'package:animal_type_classificiation_app/config/app_theme.dart';
 import 'package:animal_type_classificiation_app/features/history/history_page.dart';
 import 'package:animal_type_classificiation_app/features/home/home_content.dart';
+import 'package:animal_type_classificiation_app/features/map/simple_cattle_list.dart';
 import 'package:animal_type_classificiation_app/features/settings/settings_page.dart';
 import 'package:flutter/material.dart';
 
@@ -15,8 +16,9 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _pages = [
     HomeContent(),
-    HistoryPage(), 
-    SettingsPage(), 
+    HistoryPage(),
+    SimpleCattleListPage(),
+    SettingsPage(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppTheme.textColor,
         ),
         body: _pages[_currentIndex],
-      
+
         // Bottom Navigation Bar
         bottomNavigationBar: BottomNavigationBar(
           selectedItemColor: AppTheme.primaryColor,
@@ -45,10 +47,15 @@ class _HomePageState extends State<HomePage> {
               _currentIndex = index;
             });
           },
-      
+
+          type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: "History",
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.map), label: "Map"),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
               label: "Settings",

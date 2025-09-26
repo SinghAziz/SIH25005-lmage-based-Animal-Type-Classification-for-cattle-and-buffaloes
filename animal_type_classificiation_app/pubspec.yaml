@@ -17,6 +17,9 @@ dependencies:
   flutter_tts: ^4.2.3
   speech_to_text: ^7.3.0
   google_generative_ai: ^0.4.7
+  cloud_firestore: ^6.0.2
+  geolocator: ^14.0.2
+  google_maps_flutter: ^2.9.0
 
 
 dev_dependencies:
