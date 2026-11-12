@@ -32,7 +32,7 @@ done
 
 # ---------- Flutter ----------
 if have flutter; then
-  FLUTTER=flutter
+  FLUTTER="$(command -v flutter)"
 elif [ -x "$FLUTTER_HOME/bin/flutter" ]; then
   FLUTTER="$FLUTTER_HOME/bin/flutter"
 elif [ -x "$HOME/flutter/bin/flutter" ]; then
@@ -55,23 +55,39 @@ PY
   rm -f "$REL_FILE"
   mkdir -p "$(dirname "$FLUTTER_HOME")"
   URL="https://storage.googleapis.com/flutter_infra_release/releases/$ARCHIVE"
-  log "Downloading $ARCHIVE"
+  log "Downloading $ARCHIVE (~1.5 GB) — this takes a few minutes"
   case "$ARCHIVE" in
     *.zip)
-      curl -fsSL "$URL" -o "$FLUTTER_HOME.zip"
+      curl -fL --progress-bar "$URL" -o "$FLUTTER_HOME.zip"
+      log "Extracting..."
       unzip -q "$FLUTTER_HOME.zip" -d "$(dirname "$FLUTTER_HOME")"
       rm -f "$FLUTTER_HOME.zip"
       ;;
     *)
-      curl -fsSL "$URL" -o "$FLUTTER_HOME.tar.xz"
-      tar xf "$FLUTTER_HOME.tar.xz" -C "$(dirname "$FLUTTER_HOME")"
+      curl -fL --progress-bar "$URL" -o "$FLUTTER_HOME.tar.xz"
+      log "Extracting..."
+      tar --no-same-owner -xf "$FLUTTER_HOME.tar.xz" -C "$(dirname "$FLUTTER_HOME")"
       rm -f "$FLUTTER_HOME.tar.xz"
       ;;
   esac
   FLUTTER="$FLUTTER_HOME/bin/flutter"
+  # Extracted as root the SDK can end up owned by another uid; flutter needs to
+  # write into bin/cache, so make it ours.
+  chown -R "$(id -u):$(id -g)" "$FLUTTER_HOME" 2>/dev/null || true
 fi
 export PATH="$(dirname "$FLUTTER"):$PATH"
-log "Using $("$FLUTTER" --version | head -1)"
+
+# The SDK ships a .git dir; when extracted as root (containers) git refuses to
+# work on it ("dubious ownership") and every flutter command fails.
+FLUTTER_ROOT="$(dirname "$(dirname "$FLUTTER")")"
+git config --global --add safe.directory "$FLUTTER_ROOT" 2>/dev/null || true
+[ "$(id -u)" = "0" ] && chown -R 0:0 "$FLUTTER_ROOT" 2>/dev/null || true
+
+FLUTTER_VERSION="$("$FLUTTER" --version 2>/dev/null | head -1)"
+[ -n "$FLUTTER_VERSION" ] || die "Flutter at $FLUTTER is not working. Delete $FLUTTER_ROOT and re-run."
+log "Using $FLUTTER_VERSION"
+log "Precaching web artifacts (one-time, a few hundred MB)"
+"$FLUTTER" precache --web >/dev/null 2>&1 || true
 
 # ---------- Backend ----------
 log "Preparing backend venv and dependencies"
