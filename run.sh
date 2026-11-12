@@ -16,8 +16,13 @@ API_URL="${API_URL:-http://localhost:${BACKEND_PORT}/predict}"
 FLUTTER_HOME="${FLUTTER_HOME:-$HOME/.local/flutter}"
 
 log() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
-die() { printf '\033[1;31merror:\033[0m %s\n' "$*" >&2; exit 1; }
+die() { trap - ERR; printf '\033[1;31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 have() { command -v "$1" >/dev/null 2>&1; }
+
+# Show the failing line instead of dying silently (set -e + pipefail).
+trap 'printf "\033[1;31merror:\033[0m aborted at line %s\n" "$LINENO" >&2' ERR
+
+log "cattle-lens dev runner — repo $ROOT"
 
 case "$(uname -s)" in
   MINGW* | MSYS* | CYGWIN*) die "Native Windows is not supported; run this from WSL." ;;
@@ -83,8 +88,12 @@ FLUTTER_ROOT="$(dirname "$(dirname "$FLUTTER")")"
 git config --global --add safe.directory "$FLUTTER_ROOT" 2>/dev/null || true
 [ "$(id -u)" = "0" ] && chown -R 0:0 "$FLUTTER_ROOT" 2>/dev/null || true
 
-FLUTTER_VERSION="$("$FLUTTER" --version 2>/dev/null | head -1)"
-[ -n "$FLUTTER_VERSION" ] || die "Flutter at $FLUTTER is not working. Delete $FLUTTER_ROOT and re-run."
+FLUTTER_VERSION="$("$FLUTTER" --version 2>/dev/null | head -1 || true)"
+if [ -z "$FLUTTER_VERSION" ]; then
+  printf '\033[1;31merror:\033[0m Flutter at %s is not working:\n' "$FLUTTER" >&2
+  "$FLUTTER" --version 2>&1 | head -5 >&2 || true
+  die "Fix the SDK (delete $FLUTTER_ROOT and re-run) or install Flutter yourself."
+fi
 log "Using $FLUTTER_VERSION"
 log "Precaching web artifacts (one-time, a few hundred MB)"
 "$FLUTTER" precache --web >/dev/null 2>&1 || true
@@ -121,7 +130,7 @@ kill_listeners() {
   [ -z "${pids// /}" ] && return 0
 
   for pid in $pids; do
-    desc="$(ps -p "$pid" -o args= 2>/dev/null | cut -c1-60)"
+    desc="$(ps -p "$pid" -o args= 2>/dev/null | cut -c1-60 || true)"
     log "Port $port is busy — killing PID $pid (${desc:-unknown})"
     kill "$pid" 2>/dev/null || log "  could not kill PID $pid (not yours?)"
   done
