@@ -1,13 +1,8 @@
-Backend/Model/dataset/
-Backend/Model/split
-Backend/dataset
-Backend/runs
-Backend/predictions
-Backend/all_test_results
-runs/
-Backend/Model/demo_dataset/
+# OS / tooling
+.DS_Store
+.codegraph/
+
 # Python
-gpu_checker.py
 __pycache__/
 *.pyc
 *.pyo
