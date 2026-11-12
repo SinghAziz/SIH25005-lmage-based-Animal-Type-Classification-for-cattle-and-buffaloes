@@ -17,8 +17,26 @@ AI can automate Animal Type Classification (ATC) in dairy farming by analyzing c
 ├── .vscode/
 ├── .gitignore
 ├── LICENSE
-└── README.md
+├── README.md
+└── run.sh                      # one-command dev runner
 ```
+
+## Quick start
+
+```bash
+./run.sh
+```
+
+Checks for Python 3 and Flutter (installing them if missing), sets up `backend/venv`,
+starts the API on `:8082`, and serves the web app on `:8083` — then Ctrl+C stops both.
+
+| Variable | Default | |
+|---|---|---|
+| `WEB_PORT` | `8083` | app port |
+| `BACKEND_PORT` | `8082` | API port |
+| `API_URL` | `http://localhost:8082/predict` | set to your LAN IP to open the app from a phone |
+
+Linux/macOS/WSL only.
 
 ## Backend
 
@@ -47,11 +65,4 @@ Run `deactivate` to leave the environment.
 cd frontend
 flutter pub get
 flutter run
-```
-
-The API endpoint defaults to `http://localhost:8000/predict` and is set in
-`frontend/lib/core/predict.dart`. Override it at build/run time:
-
-```bash
-flutter run --dart-define=API_URL=http://<host>:8000/predict
 ```

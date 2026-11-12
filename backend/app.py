@@ -166,7 +166,10 @@ async def predict_animal(file: UploadFile = File(...)):
 
 @app.get('/')
 def root():
-    return "Welcome"
+    return {
+        "message": "Welcome to CartSense Backend!",
+        "status": "Running"
+    }
 # ---------------- RUN ----------------
 if __name__ == "__main__":
     import uvicorn
