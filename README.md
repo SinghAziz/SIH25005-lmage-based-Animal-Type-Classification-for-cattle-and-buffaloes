@@ -22,11 +22,21 @@ AI can automate Animal Type Classification (ATC) in dairy farming by analyzing c
 
 ## Backend
 
+Create the virtual environment once, then activate it whenever you work on the backend:
+
 ```bash
-pip install -r backend/requirements.txt
 cd backend
+python3 -m venv venv
+
+# Activate (Linux/macOS)
+source venv/bin/activate
+# Windows: venv\Scripts\activate
+
+pip install -r requirements.txt
 uvicorn app:app --host 0.0.0.0 --port 8000
 ```
+
+Run `deactivate` to leave the environment.
 
 - `POST /predict` accepts a multipart image (`file`) and returns breed, height, width, weight and daily milk yield.
 - Model paths are resolved relative to `backend/app.py`, so the server can be started from any directory.

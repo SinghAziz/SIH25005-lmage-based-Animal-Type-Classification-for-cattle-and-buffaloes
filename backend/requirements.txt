@@ -2,9 +2,9 @@
 fastapi
 uvicorn
 python-multipart
-torch==2.8.0
-torchvision==0.23.0
-numpy==2.2.6
-pillow==11.3.0
-joblib==1.5.2
-scikit-learn==1.7.2
+torch
+torchvision
+numpy
+pillow
+joblib
+scikit-learn
