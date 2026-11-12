@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:animal_type_classificiation_app/config/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -306,12 +307,19 @@ class _PredictBreedState extends State<PredictBreed> {
                     elevation: 4,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.file(
-                        File(widget.imagePath),
-                        height: 220,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+                      child: kIsWeb
+                          ? Image.network(
+                              widget.imagePath,
+                              height: 220,
+                              width: double.infinity,
+                              fit: BoxFit.contain,
+                            )
+                          : Image.file(
+                              File(widget.imagePath),
+                              height: 220,
+                              width: double.infinity,
+                              fit: BoxFit.contain,
+                            ),
                     ),
                   ),
                   const SizedBox(height: 20),

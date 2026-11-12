@@ -1,5 +1,6 @@
 # app.py
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from PIL import Image
 import torch
@@ -11,6 +12,12 @@ from collections import OrderedDict
 from pathlib import Path
 
 app = FastAPI(title="Cattle/Buffalo Animal Type Prediction API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ---------------- CONFIG ----------------
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

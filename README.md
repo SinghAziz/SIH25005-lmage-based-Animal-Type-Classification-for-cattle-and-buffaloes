@@ -49,4 +49,9 @@ flutter pub get
 flutter run
 ```
 
-The API endpoint is hardcoded in `frontend/lib/core/predict.dart` (`http://172.20.10.8:8000/predict`). Change it to the host running the backend.
+The API endpoint defaults to `http://localhost:8000/predict` and is set in
+`frontend/lib/core/predict.dart`. Override it at build/run time:
+
+```bash
+flutter run --dart-define=API_URL=http://<host>:8000/predict
+```

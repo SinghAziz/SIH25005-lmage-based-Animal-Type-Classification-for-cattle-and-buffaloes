@@ -1,11 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart' show XFile;
 
-Future<Map<String, dynamic>?> predictImage(File imageFile) async {
-  var uri = Uri.parse('http://172.20.10.8:8000/predict');
+const apiUrl = String.fromEnvironment(
+  'API_URL',
+  defaultValue: 'http://localhost:8000/predict',
+);
+
+Future<Map<String, dynamic>?> predictImage(XFile imageFile) async {
+  var uri = Uri.parse(apiUrl);
+  var bytes = await imageFile.readAsBytes();
   var request = http.MultipartRequest('POST', uri)
-    ..files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+    ..files.add(
+      http.MultipartFile.fromBytes('file', bytes, filename: imageFile.name),
+    );
 
   var response = await request.send();
 

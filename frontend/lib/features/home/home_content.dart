@@ -1,6 +1,7 @@
 import 'package:animal_type_classificiation_app/config/app_theme.dart';
 import 'package:animal_type_classificiation_app/core/predict.dart';
 import 'package:animal_type_classificiation_app/features/prediction/predict_breed.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -13,7 +14,7 @@ class HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<HomeContent> {
-  File? image;
+  XFile? image;
   final picker = ImagePicker();
   Map<String, dynamic>? prediction;
   bool isLoading = false;
@@ -24,7 +25,7 @@ class _HomeContentState extends State<HomeContent> {
 
       if (pickedFile != null) {
         setState(() {
-          image = File(pickedFile.path);
+          image = pickedFile;
           prediction = null; // Reset prediction for new image
         });
       }
@@ -76,7 +77,9 @@ class _HomeContentState extends State<HomeContent> {
               child: image != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.file(image!, fit: BoxFit.cover),
+                      child: kIsWeb
+                          ? Image.network(image!.path, fit: BoxFit.contain)
+                          : Image.file(File(image!.path), fit: BoxFit.contain),
                     )
                   : const Center(child: Text("No image selected")),
             ),
